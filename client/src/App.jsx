@@ -26,6 +26,7 @@ import Donate from './pages/memorial/Donate'
 import Profile from './pages/profile/Profile'
 import EditProfile from './pages/profile/EditProfile'
 import Icon from './components/ui/Icon'
+import StudentsTable from './StudentsTable'
 
 function NotFound() {
   return (
@@ -45,6 +46,7 @@ export default function App() {
         <ToastProvider>
           <Routes>
             <Route element={<PublicLayout />}>
+            <Route path="/students" element={<StudentsTable />} />
               <Route path="/" element={<Landing />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
@@ -53,6 +55,7 @@ export default function App() {
               <Route path="/memorials" element={<MemorialDirectory />} />
               <Route path="/memorial/:id" element={<Memorial />} />
               <Route path="/donate/:id" element={<Donate />} />
+              <Route path="/students" element={<StudentsTable />} />
             </Route>
             <Route element={<DashboardLayout />}>
               <Route path="/dashboard" element={<FuneralDashboard />} />
@@ -68,6 +71,7 @@ export default function App() {
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/profile/edit" element={<EditProfile />} />
+              <Route path="/students" element={<StudentsTable />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
