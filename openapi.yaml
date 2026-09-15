@@ -1,0 +1,237 @@
+openapi: 3.0.0
+
+info:
+  title: Faraja API
+  description: API for the Faraja digital funeral planning and memorial platform.
+  version: 1.0.0
+
+paths:
+
+  /memorials:
+    get:
+      summary: Get memorial information
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Memorial'
+
+  /gbv-affected-areas:
+    get:
+      summary: Get GBV-affected areas
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GBVAffectedArea'
+
+  /memorial-events:
+    get:
+      summary: Get scheduled memorial events
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MemorialEvent'
+
+  /memorials/updates:
+    get:
+      summary: Get memorial updates
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MemorialUpdate'
+
+  /funeral-projects/{id}/contributions:
+    get:
+      summary: Get contributions for a funeral project
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the funeral project
+          schema:
+            type: integer
+          example: 10
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Contribution'
+        '404':
+          description: Funeral project not found
+
+  /awareness-activities:
+    post:
+      summary: Submit a GBV awareness activity
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AwarenessActivity'
+      responses:
+        '201':
+          description: Awareness activity created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AwarenessActivity'
+        '400':
+          description: Invalid request
+
+components:
+  schemas:
+
+    Memorial:
+      type: object
+      required:
+        - id
+        - name
+        - date
+        - location
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Jane Wanjiku"
+        date:
+          type: string
+          format: date
+          example: "2026-09-01"
+        location:
+          type: string
+          example: "Nairobi"
+        causeOfDeath:
+          type: string
+          example: "Gender-based violence"
+
+    GBVAffectedArea:
+      type: object
+      required:
+        - area
+        - numberOfCases
+      properties:
+        area:
+          type: string
+          example: "Nairobi"
+        numberOfCases:
+          type: integer
+          example: 12
+
+    MemorialEvent:
+      type: object
+      required:
+        - id
+        - memorialId
+        - eventName
+        - date
+        - location
+      properties:
+        id:
+          type: integer
+          example: 1
+        memorialId:
+          type: integer
+          example: 1
+        eventName:
+          type: string
+          example: "Memorial Service"
+        date:
+          type: string
+          format: date
+          example: "2026-09-15"
+        location:
+          type: string
+          example: "Nairobi"
+
+    MemorialUpdate:
+      type: object
+      required:
+        - memorialId
+        - update
+        - updatedAt
+      properties:
+        memorialId:
+          type: integer
+          example: 1
+        update:
+          type: string
+          example: "Memorial service location changed"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2026-09-10T14:30:00Z"
+
+    Contribution:
+      type: object
+      required:
+        - id
+        - funeralProjectId
+        - contributorName
+        - amount
+        - date
+      properties:
+        id:
+          type: integer
+          example: 1
+        funeralProjectId:
+          type: integer
+          example: 10
+        contributorName:
+          type: string
+          example: "John Otieno"
+        amount:
+          type: number
+          format: double
+          example: 5000.00
+        date:
+          type: string
+          format: date-time
+          example: "2026-09-10T09:15:00Z"
+
+    AwarenessActivity:
+      type: object
+      required:
+        - memorialEventId
+        - activityName
+      properties:
+        id:
+          type: integer
+          example: 1
+        memorialEventId:
+          type: integer
+          example: 5
+        activityName:
+          type: string
+          example: "GBV Awareness Workshop"
+        description:
+          type: string
+          example: "Community awareness activity held during the memorial event."
+        date:
+          type: string
+          format: date
+          example: "2026-09-20"
