@@ -350,8 +350,123 @@ async function announceFuneral(req, res) {
   }
 }
 
+// ── Contract: GET /memorials ────────────────────────────────
+async function getMemorialsForContract(req, res) {
+  try {
+    const [rows] = await db.query(
+      `SELECT
+         id,
+         deceased_name,
+         funeral_date,
+         venue
+       FROM funeral_projects
+       WHERE status = 'active'
+         AND privacy = 'public'
+       ORDER BY created_at DESC`
+    );
+
+    const memorials = rows
+      .filter(row => row.funeral_date && row.venue)
+      .map(row => ({
+        id: Number(row.id),
+        name: row.deceased_name,
+        date: row.funeral_date instanceof Date
+          ? row.funeral_date.toISOString().split('T')[0]
+          : String(row.funeral_date),
+        location: row.venue
+      }));
+
+    return res.status(200).json(memorials);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      message: 'Internal server error'
+    });
+  }
+}
+
+// ── Contract: GET /gbv-affected-areas ──────────────────────
+async function getGBVAffectedAreasForContract(req, res) {
+  try {
+    // The current Faraja database does not contain a dedicated
+    // GBV-affected-areas dataset, so no cases are fabricated.
+    return res.status(200).json([]);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      message: 'Internal server error'
+    });
+  }
+}
+
+// ── Contract: GET /memorial-events ─────────────────────────
+async function getMemorialEventsForContract(req, res) {
+  try {
+    const [rows] = await db.query(
+      `SELECT
+         id,
+         funeral_date,
+         venue
+       FROM funeral_projects
+       WHERE status = 'active'
+         AND privacy = 'public'
+         AND funeral_date IS NOT NULL
+         AND venue IS NOT NULL
+       ORDER BY funeral_date ASC`
+    );
+
+    const events = rows.map(row => ({
+      id: Number(row.id),
+      memorialId: Number(row.id),
+      eventName: 'Funeral Service',
+      date: row.funeral_date instanceof Date
+        ? row.funeral_date.toISOString().split('T')[0]
+        : String(row.funeral_date),
+      location: row.venue
+    }));
+
+    return res.status(200).json(events);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      message: 'Internal server error'
+    });
+  }
+}
+
+// ── Contract: GET /memorials/updates ───────────────────────
+async function getMemorialUpdatesForContract(req, res) {
+  try {
+    const [rows] = await db.query(
+      `SELECT
+         id,
+         funeral_date,
+         venue,
+         updated_at
+       FROM funeral_projects
+       WHERE status = 'active'
+         AND privacy = 'public'
+       ORDER BY updated_at DESC`
+    );
+
+    const updates = rows.map(row => ({
+      memorialId: Number(row.id),
+      update: `Memorial information available for ${row.venue || 'the scheduled venue'}`,
+      updatedAt: new Date(row.updated_at).toISOString()
+    }));
+
+    return res.status(200).json(updates);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      message: 'Internal server error'
+    });
+  }
+}
+
 module.exports = {
   createFuneral, getMyFunerals, getFuneral, updateFuneral, deleteFuneral,
   getDashboard, getActiveFunerals, getPublicMemorial, printMemorial,
-  upgradeTier, announceFuneral,
+  upgradeTier, announceFuneral, getMemorialsForContract, getGBVAffectedAreasForContract, getMemorialEventsForContract,
+getMemorialUpdatesForContract,
 };

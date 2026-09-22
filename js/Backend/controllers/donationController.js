@@ -210,5 +210,55 @@ async function financialReport(req, res) {
     return R.serverError(res, err);
   }
 }
+async function getContributionsForContract(req, res) {
+  try {
+    const { id } = req.params;
 
-module.exports = { createDonation, mpesaCallback, getDonations, getAllContributions, financialReport };
+    const [projectRows] = await db.query(
+      'SELECT id FROM funeral_projects WHERE id = ?',
+      [id]
+    );
+
+    if (projectRows.length === 0) {
+      return res.status(404).json({
+        message: 'Funeral project not found'
+      });
+    }
+
+    const [rows] = await db.query(
+      `SELECT
+         id,
+         funeral_id AS funeralProjectId,
+         contributor_name AS contributorName,
+         amount,
+         created_at AS date
+       FROM contributions
+       WHERE funeral_id = ?
+       ORDER BY created_at DESC`,
+      [id]
+    );
+
+    const contributions = rows.map(row => ({
+      id: Number(row.id),
+      funeralProjectId: Number(row.funeralProjectId),
+      contributorName: row.contributorName,
+      amount: Number(row.amount),
+      date: new Date(row.date).toISOString()
+    }));
+
+    return res.status(200).json(contributions);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      message: 'Internal server error'
+    });
+  }
+}
+module.exports = {
+  createDonation,
+  mpesaCallback,
+  getDonations,
+  getAllContributions,
+  financialReport,
+  getContributionsForContract
+};
