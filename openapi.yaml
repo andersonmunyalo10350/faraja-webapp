@@ -5,6 +5,10 @@ info:
   description: API for the Faraja digital funeral planning and memorial platform.
   version: 1.0.0
 
+servers:
+  - url: http://localhost:5000
+    description: Local Faraja API
+
 paths:
 
   /memorials:
