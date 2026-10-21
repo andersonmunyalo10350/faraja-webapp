@@ -2,3 +2,4 @@ nul
 node_modules/
 .env
 server.log
+.env.partner
