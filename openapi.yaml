@@ -1,3 +1,4 @@
+
 openapi: 3.0.0
 
 info:
@@ -11,9 +12,36 @@ servers:
 
 paths:
 
+  /api/health:
+    get:
+      summary: Check API health
+      description: Public endpoint that does not require an API key.
+      security: []
+      responses:
+        '200':
+          description: API is running
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Faraja API running
+                  timestamp:
+                    type: string
+                    format: date-time
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
   /memorials:
     get:
       summary: Get memorial information
+      security:
+        - ApiKeyAuth: []
       responses:
         '200':
           description: Successful response
@@ -23,10 +51,16 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Memorial'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
 
   /gbv-affected-areas:
     get:
       summary: Get GBV-affected areas
+      security:
+        - ApiKeyAuth: []
       responses:
         '200':
           description: Successful response
@@ -36,10 +70,16 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/GBVAffectedArea'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
 
   /memorial-events:
     get:
       summary: Get scheduled memorial events
+      security:
+        - ApiKeyAuth: []
       responses:
         '200':
           description: Successful response
@@ -49,10 +89,16 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/MemorialEvent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
 
   /memorials/updates:
     get:
       summary: Get memorial updates
+      security:
+        - ApiKeyAuth: []
       responses:
         '200':
           description: Successful response
@@ -62,10 +108,16 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/MemorialUpdate'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
 
   /funeral-projects/{id}/contributions:
     get:
       summary: Get contributions for a funeral project
+      security:
+        - ApiKeyAuth: []
       parameters:
         - name: id
           in: path
@@ -83,12 +135,18 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Contribution'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '404':
           description: Funeral project not found
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
 
   /awareness-activities:
     post:
       summary: Submit a GBV awareness activity
+      security:
+        - ApiKeyAuth: []
       requestBody:
         required: true
         content:
@@ -104,9 +162,68 @@ paths:
                 $ref: '#/components/schemas/AwarenessActivity'
         '400':
           description: Invalid request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
 
 components:
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: Supply a valid partner API key in the X-API-Key header.
+
+  responses:
+    Unauthorized:
+      description: Missing or invalid API key
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            message: Missing or invalid API key
+
+    TooManyRequests:
+      description: Rate limit exceeded. Retry after the specified interval.
+      headers:
+        Retry-After:
+          description: Number of seconds before retrying
+          schema:
+            type: integer
+          example: 60
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            message: Too many requests. Please try again later.
+            retryAfter: 60
+
+    InternalServerError:
+      description: Internal server error
+
   schemas:
+
+    ErrorResponse:
+      type: object
+      required:
+        - success
+        - message
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: Missing or invalid API key
+        retryAfter:
+          type: integer
+          example: 60
 
     Memorial:
       type: object

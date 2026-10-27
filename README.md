@@ -516,3 +516,21 @@ The specification describes the available endpoints, request parameters, request
 
 The interactive Swagger UI is available at `/api-docs` while the backend is running.
 
+
+## Partner API Security
+
+Partner API endpoints require an API key in the `X-API-Key` HTTP header. Configure the consumer keys in `js/Backend/.env` using the `API_KEYS` environment variable. Use a separate key for each consumer and share keys privately.
+
+Example request:
+
+```http
+GET /memorials HTTP/1.1
+Host: localhost:5000
+X-API-Key: YOUR_API_KEY
+```
+
+Requests without a valid API key receive `401 Unauthorized`. Requests exceeding the configured rate limit receive `429 Too Many Requests` and a `Retry-After` header.
+
+The configured partner API rate limit is 100 requests per minute. The `/api/health` endpoint is public and does not require an API key.
+
+Never commit real API keys, database passwords, or other secrets to source control.
