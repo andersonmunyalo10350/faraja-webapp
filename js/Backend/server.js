@@ -1,8 +1,14 @@
+const path = require('path');
+
 require('dotenv').config();
+
+require('dotenv').config({
+  path: path.join(__dirname, '../../.env.partner')
+});
 
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
+
 
 const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
@@ -43,6 +49,8 @@ app.use('/api/products', require('./routes/products'));
 app.use('/api/bookings', require('./routes/bookings'));
 app.use('/api/reviews', require('./routes/reviews'));
 app.use('/api/condolences', require('./routes/condolences'));
+
+app.use('/api/partner/fundilink', require('./routes/fundilink'));
 
 // Public health check — does not require an API key
 app.get('/api/health', (req, res) => {
