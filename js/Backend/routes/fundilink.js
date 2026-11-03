@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
+const { fetchWithRetry } = require('./resilientFetch');
 
 router.get('/users', async (req, res) => {
+    console.log('FundiLink /users route was reached');
   try {
     const baseUrl = process.env.FUNDILINK_API_URL;
     const apiKey = process.env.FUNDILINK_API_KEY;
@@ -13,12 +15,17 @@ router.get('/users', async (req, res) => {
       });
     }
 
-    const response = await fetch(
+    const response = await fetchWithRetry(
       `${baseUrl.replace(/\/$/, '')}/users`,
       {
         headers: {
           'X-API-Key': apiKey
         }
+      },
+      {
+        timeoutMs: 1500,
+        retries: 2,
+        delayMs: 200
       }
     );
 
@@ -37,7 +44,11 @@ router.get('/users', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('FundiLink request failed:', error.message);
+    const reason = error.name === 'TimeoutError'
+      ? 'timeout'
+      : (error.cause?.code || error.message);
+
+    console.error('FundiLink request failed:', error);
 
     return res.status(502).json({
       success: false,
