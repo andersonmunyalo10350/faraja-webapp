@@ -33,6 +33,9 @@ function apiKeyAuth(req, res, next) {
     });
   }
 
+  // Make the authenticated key available to the monitoring middleware.
+  req.apiKey = providedKey;
+
   return next();
 }
 

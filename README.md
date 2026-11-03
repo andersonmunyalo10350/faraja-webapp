@@ -534,3 +534,37 @@ Requests without a valid API key receive `401 Unauthorized`. Requests exceeding 
 The configured partner API rate limit is 100 requests per minute. The `/api/health` endpoint is public and does not require an API key.
 
 Never commit real API keys, database passwords, or other secrets to source control.
+
+
+API Monitoring and Statistics
+
+Faraja provides a protected monitoring endpoint for viewing API request statistics.
+
+GET /stats
+
+Returns monitoring statistics, including:
+
+Total number of requests.
+Number of client errors (4xx).
+Number of server errors (5xx).
+Overall error rate.
+Request counts and response-time statistics for individual routes.
+
+Authentication: Requires a valid API key in the X-API-Key request header.
+
+Example request:
+
+GET /stats
+X-API-Key: <your-api-key>
+
+Example response:
+
+{
+  "total": 60,
+  "clientErrors": 60,
+  "serverErrors": 0,
+  "errorRatePercent": 100,
+  "routes": {}
+}
+
+The example values are illustrative. Actual statistics depend on API traffic. Statistics are stored in memory and reset when the server restarts.

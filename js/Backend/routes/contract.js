@@ -6,10 +6,12 @@ const A = require('../controllers/awarenessController');
 
 const apiKeyAuth = require('../middleware/apiKeyAuth');
 const apiRateLimiter = require('../middleware/apiRateLimit');
+const { statsHandler } = require('../middleware/monitoring');
 
 // Protect all partner API endpoints.
 router.use(apiKeyAuth);
 router.use(apiRateLimiter);
+router.get('/stats', statsHandler);
 
 router.get('/funeral-projects/:id/contributions', D.getContributionsForContract);
 router.get('/memorials', F.getMemorialsForContract);

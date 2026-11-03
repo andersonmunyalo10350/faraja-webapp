@@ -1,19 +1,26 @@
 const path = require('path');
 
-require('dotenv').config();
+require('dotenv').config({
+  path: path.join(__dirname, '.env'),
+  override: true
+});
 
 require('dotenv').config({
   path: path.join(__dirname, '../../.env.partner')
 });
 
+
 const express = require('express');
 const cors = require('cors');
+const { monitor } = require('./middleware/monitoring');
 
 
 const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
 
 const app = express();
+// Request monitoring — must run before authentication and rate limiting
+app.use(monitor);
 
 // CORS configuration
 app.use(cors({
