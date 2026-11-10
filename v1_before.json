@@ -1,0 +1,26 @@
+﻿[
+    {
+        "id":  4,
+        "name":  "John Kamau",
+        "date":  "2025-05-12",
+        "location":  "new baptist church"
+    },
+    {
+        "id":  3,
+        "name":  "Austin Gravano",
+        "date":  "2026-05-31",
+        "location":  "New Jersey synagogue"
+    },
+    {
+        "id":  2,
+        "name":  "Raila Amollo Odinga",
+        "date":  "2025-10-14",
+        "location":  "Bondo"
+    },
+    {
+        "id":  1,
+        "name":  "Sizler Coman",
+        "date":  "2026-11-10",
+        "location":  "Muhoroni Catholic Church"
+    }
+]

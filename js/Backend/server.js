@@ -2,7 +2,7 @@ const path = require('path');
 
 require('dotenv').config({
   path: path.join(__dirname, '.env'),
-  override: true
+  override: process.env.NODE_ENV !== 'test'
 });
 
 require('dotenv').config({
@@ -68,9 +68,15 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Partner API routes — authentication and rate limiting
-// are configured in routes/contract.js
-app.use('/', require('./routes/contract'));
+// Versioned Partner API routes
+// v1 preserves the original response format.
+app.use('/v1', require('./routes/v1'));
+
+// v2 introduces the new structured memorial response.
+app.use('/v2', require('./routes/v2'));
+
+// Keep the original unversioned endpoints working through v1.
+app.use('/', require('./routes/v1'));
 
 // Handle unknown routes
 app.use((req, res) => {
